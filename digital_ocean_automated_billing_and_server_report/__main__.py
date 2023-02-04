@@ -104,6 +104,9 @@ def main():
 
     log.info('Finished program execution')
 
+    # Return the output dictionary
+    return output_dict
+
 
 if __name__ == '__main__':
     try:
