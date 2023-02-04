@@ -19,15 +19,12 @@ class DigitalOcean:
             - Disk
             - Monthly Price
             - IP
-        - Max CPU in a time interval
-        - CPU usage data in a time interval
 
     Available Methods:
         get_balance()
         get_last_invoice()
         get_last_payment()
         get_droplet_specs(droplet_name)
-        get_cpu_metrics(days_count, host_id)
 
     """
     def __init__(self, bearer_token):
@@ -71,7 +68,7 @@ class DigitalOcean:
         """
         input_format = '%Y-%m-%dT%H:%M:%S%z'
         return datetime.strptime(input_date, input_format).strftime(
-            '%d %b %Y %H:%M')
+            '%d %B %Y %H:%M')
 
     def _get_today_date(self):
         today = datetime.now()
@@ -118,9 +115,15 @@ class DigitalOcean:
 
         # Fix formats of month_to_date_balance, account_balance and generated_at
         response_dict['month_to_date_balance'] = \
-            float(response_dict['month_to_date_balance']) * -1
+            '{0:.2f}'.format(
+                float(response_dict['month_to_date_balance']) * -1
+            )
+
         response_dict['account_balance'] = \
-            float(response_dict['account_balance']) * -1
+            '{0:.2f}'.format(
+                float(response_dict['account_balance']) * -1
+            )
+
         response_dict['generated_at'] = self._reformat_date(
             response_dict['generated_at']
         )
@@ -145,7 +148,7 @@ class DigitalOcean:
         response_dict['invoice_period'] = self._format_str_date(
             input_date=response_dict['invoice_period'],
             current_format='%Y-%m',
-            target_format='%b %Y'
+            target_format='%B %Y'
         )
         return response_dict
 
@@ -205,81 +208,10 @@ class DigitalOcean:
             'id': droplet_dict['id'],
             'name': droplet_dict['name'],
             'vcpus': droplet_dict['vcpus'],
-            'memory': droplet_dict['memory'],
+            'memory': int(droplet_dict['memory']/1024),
             'disk': droplet_dict['disk'],
-            'price_monthly': droplet_dict['size']['price_monthly'],
+            'price_monthly': '{0:.2f}'.format(droplet_dict['size']['price_monthly']),
             'ip': droplet_dict['networks']['v4'][0]['ip_address'],
         }
 
         return droplet_specs_dict
-
-    def get_cpu_metrics(self, host_id, days_count):
-        """
-        Get the CPU metrics of a droplet for the last week
-        :return:
-        """
-
-        # Prepare the dates
-        start_date = self._get_past_date(days_count=days_count)
-        end_date = self._get_today_date()
-
-        api_url = self._build_api_url('monitoring/metrics/droplet/cpu')
-
-        # Add extra headers
-        params = dict()
-        params['host_id'] = str(host_id)
-        params['start'] = str(start_date)
-        params['end'] = str(end_date)
-
-        response = requests.request(
-            "GET", api_url, headers=self.headers, params=params
-        )
-
-        response_dict = json.loads(response.text)
-
-        # results_dict = {'timestamp': {'ideal': ###, ....}, }
-
-        results_dict = dict()
-
-        for bucket in response_dict['data']['result']:
-            mode = bucket['metric']['mode']
-            for value_list in bucket['values']:
-                timestamp = self._epoch_to_datetime(value_list[0], '%Y-%m-%d %H:%M')
-                value = value_list[1]
-                if timestamp not in results_dict:
-                    results_dict[timestamp] = {}
-                    results_dict[timestamp][mode] = value
-                else:
-                    results_dict[timestamp][mode] = value
-
-        cpu_labels = []
-        cpu_data = []
-
-        for timestamp in results_dict:
-            user = float(results_dict[timestamp]['user'])
-            nice = float(results_dict[timestamp]['nice'])
-            system = float(results_dict[timestamp]['system'])
-            idle = float(results_dict[timestamp]['idle'])
-            iowait = float(results_dict[timestamp]['iowait'])
-            irq = float(results_dict[timestamp]['irq'])
-            softirq = float(results_dict[timestamp]['softirq'])
-            steal = float(results_dict[timestamp]['steal'])
-            total = user + nice + system + idle + iowait + irq + softirq + steal
-            idle = idle + iowait
-            usage = total - idle
-            cpu_util = round(usage*100/total, 2)
-            cpu_labels.append(timestamp)
-            cpu_data.append(cpu_util)
-
-        max_cpu_percent = max(cpu_data)
-        max_cpu_index = cpu_data.index(max_cpu_percent)
-        max_cpu_time = cpu_labels[max_cpu_index]
-
-        output_dict = {
-            'max_cpu_percent': max_cpu_percent,
-            'max_cpu_time': max_cpu_time,
-            'cpu_labels': cpu_labels,
-            'cpu_data': cpu_data
-        }
-
-        return output_dict

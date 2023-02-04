@@ -48,13 +48,6 @@ def main():
     )
     output_dict['droplet_specs'] = droplet_results_dict
 
-    # Get CPU metrics for last week
-    cpu_results_dict = docn.get_cpu_metrics(
-        host_id=config['digitalOcean']['droplet_id'],
-        days_count=7
-    )
-    output_dict['cpu_metrics'] = cpu_results_dict
-
     # Log the results
     log.info('Month to date usage: {0}'.format(
         output_dict['balance']['month_to_date_usage']
@@ -88,18 +81,6 @@ def main():
     ))
     log.info('Monthly price: {0}'.format(
         output_dict['droplet_specs']['price_monthly']
-    ))
-    log.info('Max CPU: {0}%'.format(
-        output_dict['cpu_metrics']['max_cpu_percent']
-    ))
-    log.info('Max CPU timestamp: {0}'.format(
-        output_dict['cpu_metrics']['max_cpu_time']
-    ))
-    log.info('CPU labels: {0}'.format(
-        output_dict['cpu_metrics']['cpu_labels']
-    ))
-    log.info('CPU data: {0}'.format(
-        output_dict['cpu_metrics']['cpu_data']
     ))
 
     log.info('Finished program execution')

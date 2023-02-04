@@ -78,10 +78,6 @@ Digital Ocean API and extracted the following information:
   * RAM Memory
   * Storage Disk
   * Monthly price
-  * Max CPU
-  * Max CPU timestamp
-  * CPU usage data
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -158,16 +154,26 @@ To get a local copy up and running follow these simple steps.
   - [x] RAM Memory
   - [x] Storage Disk
   - [x] Monthly price
-  - [x] Max CPU usage
-  - [x] Max CPU timestamp
-  - [x] CPU usage data
-- [ ] Max RAM memory usage
-- [ ] Max RAM memory timestamp
-- [ ] RAM memory usage data
-- [ ] Free Disk Storage
-- [ ] Used Disk Storage
-- [ ] Inbound Bandwidth
-- [ ] Outbound Bandwidth
+
+[//]: # (- [ ] Max CPU usage)
+
+[//]: # (- [ ] Max CPU timestamp)
+
+[//]: # (- [ ] CPU usage data)
+
+[//]: # (- [ ] Max RAM memory usage)
+
+[//]: # (- [ ] Max RAM memory timestamp)
+
+[//]: # (- [ ] RAM memory usage data)
+
+[//]: # (- [ ] Free Disk Storage)
+
+[//]: # (- [ ] Used Disk Storage)
+
+[//]: # (- [ ] Inbound Bandwidth)
+
+[//]: # (- [ ] Outbound Bandwidth)
  
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
